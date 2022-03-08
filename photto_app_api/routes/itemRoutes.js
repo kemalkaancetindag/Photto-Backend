@@ -1,4 +1,5 @@
 const { Item } = require("../models/ItemModel")
+const Collection = require("../models/CollectionModel")
 
 const router = require("express").Router()
 
@@ -47,6 +48,38 @@ router.get("/new-nfts", async (req,res) => {
         responseObject["error"] = e.toString()
         responseObject["data"] = null
     }
+
+    res.json(responseObject)
+
+})
+
+router.get("/single-nft", async (req,res) => {
+
+    var {contract_address,token_id} = req.query
+    responseObject = {}    
+    
+    try{
+        const collection = await Collection.findOne({contract_address})
+        console.log(collection["creator_name"] )
+        const item = await Item.findOne({
+          contract_address:contract_address,
+          token_id:token_id
+        })
+
+        
+        
+        responseObject["success"] = true
+        responseObject["error"] = null
+        responseObject["data"] = item
+        responseObject["collection_description"] = collection.description
+        responseObject["creator"] = collection.creator_name        
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+        responseObject["data"] = null
+    }
+    
 
     res.json(responseObject)
 

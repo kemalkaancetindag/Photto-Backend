@@ -1,19 +1,19 @@
 let Collection = require("../models/CollectionModel")
 
 const createCollection = async (collectionData) => {
-    const {contract_address, description, collection_name, collection_symbol, image} = collectionData 
+    const {contract_address, collection_description, collection_name, collection_symbol, collection_image,creator_name} = collectionData 
 
     const newCollection = new Collection({
         contract_address,
-        description,
+        collection_description,
         collection_name,
         collection_symbol,            
+        creator_name,
         image:"image"
 
     })
 
-    const saveResponse = await newCollection.save()
-    return saveResponse._id
+    await newCollection.save()    
 }
 
 

@@ -7,6 +7,8 @@ const expressFormData = require("express-form-data")
 const createItem = require("../db/itemOperations");
 const {addToCollection,createCollection, getNextTokenId} = require("../db/collectionOperations");
 const { checkUserExists, createUser, addCollection } = require("../db/userOperations");
+const Collection = require("../models/CollectionModel");
+const User = require("../models/UserModel");
 
 
 
@@ -16,7 +18,7 @@ const { checkUserExists, createUser, addCollection } = require("../db/userOperat
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/mint_service_api/assets")
+        cb(null,"C:/Users/Kaan/Desktop/photto_backend/mint_service_api/assets")
     },
     filename: (req, file, cb) => {        
           
@@ -29,60 +31,68 @@ const upload = multer({storage})
 
 
 router.post("/mint-nft",upload.single('image'), async (req, res) => {
-    let contractAddress = req.body["contractAddress"]                
-    const walletAddress = req.body["walletAddress"]    
-    const fileName = req.file.originalname    
-    const name = req.body["name"]        
-    const attributes = JSON.parse(JSON.stringify(req.body["attributes"]["traits"]))    
-    const description = req.body["description"]
+    // GET COLLECTION DATA CHECK COLLECTION EXISTS    
 
-    console.log(walletAddress)
+    //COLLECTION DATA
+    const wallet_address = req.body["walletAddress"]
+    var contract_address = req.body["contractAddress"]                
+    const collection_description = req.body["collectionDescription"]
+    var collection_name = req.body["collectionName"]
+    const collection_symbol = req.body["collectionSymbol"]
+    var creator_name = null
+    //COLLECTION DATA
+
+    //NFT DATA
+    const attributes = JSON.parse(req.body["attributes"])
+    const owner = wallet_address
+    const name = req.body["name"]
+    const description = req.body["description"]
+    const price = req.body["price"]
+    const file_name = req.file.originalname    
+    //NFT DATA
+
+    const existingCollection = await Collection.findOne({contract_address:contract_address})
+    console.log(existingCollection)
+    const existingUser = await User.findOne({wallet_address:wallet_address})
+    
     
 
-    let metadata = {        
-        "attributes":attributes,
-        "description": description,        
-        "name": name,        
-    }         
-    var imagePath = `C:/Users/Kaan/Desktop/mint_service_api/assets/${fileName}`
-                           
-    const {data,ipfsLocation} = await pinToIpfs(imagePath,metadata)
-
-    data["owner"] = walletAddress    
-
-    const user = await checkUserExists(walletAddress)    
-    console.log(user)
-
-    if(user){
-        data["token_id"] = await getNextTokenId(contractAddress)
-        const newItem = await createItem(data)
-        await addToCollection(contractAddress,newItem._id)        
+    if(existingUser && existingUser.name){
+        creator_name = existingUser.name
     }
     else{
-        let userData = {
-            wallet_address: walletAddress,            
-        }
-        const newUser = await createUser(userData)
-        contractAddress = await deploy(collectionName, collectionSymbol)
-            
-        let collectionData = {
-            contract_address :contractAddress,
-            collection_symbol:collectionSymbol,
-            collection_name:collectionName,
-            description:collectionDescription,                        
-        }
-        
-        
-        await createCollection(collectionData)
-        data["token_id"] = await getNextTokenId(contractAddress)
-        await addCollection(contractAddress,walletAddress)           
-        const newItem = await createItem(data)
-        await addToCollection(contractAddress, newItem._id)
+        creator_name = wallet_address
     }
+
+    if(existingUser === null){
+        await createUser({wallet_address})
+        await createCollection({contract_address, collection_description, collection_name, collection_symbol, creator_name})        
+        const item = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price})
+        await addCollection(contract_address,wallet_address)
+        await addToCollection(contract_address,item._id)
+    }
+    else{
+        if(existingCollection === null){       
+            console.log("geldi")
+            await createCollection({contract_address, collection_description, collection_name, collection_symbol, creator_name})        
+            const item = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price})
+            await addToCollection(contract_address,item._id)
+            await addCollection(contract_address,wallet_address)            
+        }
+        else{
+            collection_name = existingCollection.collection_name
+            contract_address = existingCollection.contract_address
+            const item = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price})
+            await addToCollection(contract_address,item._id)                
+        }
+    }
+
+    
+
 
    
 
-    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/mint_service_api/abi.json")))    
+    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/abi.json")))    
     
 
     

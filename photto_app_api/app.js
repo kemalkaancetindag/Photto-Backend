@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const collectionRoutes = require("./routes/collectionRoutes")
 const itemRoutes = require("./routes/itemRoutes")
 const searchRoute = require("./routes/searchRoute")
+const userRoutes = require("./routes/userRoutes")
 
 
 
@@ -22,6 +23,7 @@ connection.once("open", () => {
 app.use("/api/collections",collectionRoutes)
 app.use("/api/items",itemRoutes)
 app.use("/api/explore",searchRoute)
+app.use("/api/users", userRoutes)
 
 
 

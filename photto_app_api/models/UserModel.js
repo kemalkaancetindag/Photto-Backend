@@ -14,7 +14,11 @@ const UserSchema = new Schema(
     isConfirmed:{
         type:Boolean,        
     },
-    collections:[]    
+    image:{
+      type:String
+    },
+    collections:[],
+    items:[]    
   },
   
 );

@@ -4,7 +4,7 @@ var HDWalletProvider = require("@truffle/hdwallet-provider");
 var provider = new HDWalletProvider("scale slam problem follow nurse humor work fiber entry trophy kite clay", "https://rpc-mumbai.maticvigil.com")
 const web3 = new Web3(provider)
 
-const constractJSON = JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/mint_service_api/contracts/Collection.json"))
+const constractJSON = JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/contracts/Collection.json"))
 const abi = constractJSON["abi"]
 const byteCode = constractJSON["bytecode"]["object"]
 

@@ -35,6 +35,10 @@ const CollectionSchema = new Schema(
     traded:{
         type:Number
     },
+    creator_name:{
+        type:String,
+        required:true
+    }
   },
   
 );

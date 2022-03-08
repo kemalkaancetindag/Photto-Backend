@@ -2,8 +2,7 @@ const User = require("../models/UserModel")
 
 
 const createUser = async (userData) => {
-    const {name,wallet_address} = userData
-    const isUser = await checkUserExists(wallet_address)
+    const {name,wallet_address} = userData    
 
     const newUser = new User({
         wallet_address,        

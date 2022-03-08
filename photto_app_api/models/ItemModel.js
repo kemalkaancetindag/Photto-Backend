@@ -37,6 +37,10 @@ const ItemSchema = new Schema(
     },
     price:{
         type:Number
+    },
+    contract_address:{
+        type:String,
+        required:true
     }
   },
   

@@ -37,13 +37,29 @@ const ItemSchema = new Schema(
     },
     price:{
         type:Number
-    }
+    },
+    createdAt:{
+        type: Number
+    },
+    contract_address:{
+        type:String,
+        required:true
+    },
+    collection_name:{
+        type:String,
+        required:true
+    },
+    favorites:[]
+    
   },
   
 );
 
 
-
+ItemSchema.pre('save', function(next) {
+    this.createdAt = new Date().getTime();
+    next();
+});
 
 const Item = mongoose.model('Item' , ItemSchema);
 
