@@ -17,6 +17,7 @@ const UserSchema = new Schema(
     },
     collections:[],
     items:[],
+    favorites:[],
     image:{
       type:String
     }    

@@ -1,5 +1,5 @@
 {
-  "name": "photto_app_api",
+  "name": "photto_panel_api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -12,8 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.3",
-    "mongoose": "^6.2.4",
+    "mongoose": "^6.2.5",
     "multer": "^1.4.4",
     "nodemon": "^2.0.15"
   }
-}
+} 

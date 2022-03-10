@@ -49,7 +49,10 @@ const ItemSchema = new Schema(
         type:String,
         required:true
     },
-    favorites:[]
+    favorites:[],
+    collection_description:{
+        type:String,        
+    }
     
   },
   

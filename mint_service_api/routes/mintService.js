@@ -36,14 +36,14 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
     //COLLECTION DATA
     const wallet_address = req.body["walletAddress"]
     var contract_address = req.body["contractAddress"]                
-    const collection_description = req.body["collectionDescription"]
+    var collection_description = req.body["collectionDescription"]
     var collection_name = req.body["collectionName"]
     const collection_symbol = req.body["collectionSymbol"]
     var creator_name = null
     //COLLECTION DATA
 
     //NFT DATA
-    const attributes = JSON.parse(req.body["attributes"])
+    const attributes = JSON.parse(JSON.stringify(req.body["attributes"]["traits"]))
     const owner = wallet_address
     const name = req.body["name"]
     const description = req.body["description"]
@@ -52,8 +52,15 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
     //NFT DATA
 
     const existingCollection = await Collection.findOne({contract_address:contract_address})
-    console.log(existingCollection)
+    
     const existingUser = await User.findOne({wallet_address:wallet_address})
+
+
+    //RETURN DATA
+    var returnDataObject = null
+    //RETURN DATA
+    console.log("Existing collection")
+    console.log(existingCollection)
     
     
 
@@ -64,27 +71,18 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
         creator_name = wallet_address
     }
 
-    if(existingUser === null){
-        await createUser({wallet_address})
-        await createCollection({contract_address, collection_description, collection_name, collection_symbol, creator_name})        
-        const item = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price})
-        await addCollection(contract_address,wallet_address)
-        await addToCollection(contract_address,item._id)
+    if(existingUser === null){        
+        await createUser({wallet_address})        
+         returnDataObject  = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})        
+        await addToCollection(contract_address,returnDataObject.item._id)
     }
     else{
-        if(existingCollection === null){       
-            console.log("geldi")
-            await createCollection({contract_address, collection_description, collection_name, collection_symbol, creator_name})        
-            const item = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price})
-            await addToCollection(contract_address,item._id)
-            await addCollection(contract_address,wallet_address)            
-        }
-        else{
-            collection_name = existingCollection.collection_name
-            contract_address = existingCollection.contract_address
-            const item = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price})
-            await addToCollection(contract_address,item._id)                
-        }
+        collection_name = existingCollection.collection_name
+        contract_address = existingCollection.contract_address
+        collection_description = existingCollection.collection_description
+        returnDataObject = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})
+        await addToCollection(contract_address,returnDataObject.item._id)
+        
     }
 
     
@@ -96,14 +94,30 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
     
 
     
-    res.json({success:true, ipfsLocation:`https://ipfs.io/ipfs/${ipfsLocation}`, abi})
+    res.json({success:true, ipfsLocation:`https://ipfs.io/ipfs/${returnDataObject.ipfsLocation}`, abi})
 })
 
 
 router.post("/deploy-contract",expressFormData.parse(), async (req,res) => {
     const collectionName = req.body["collectionName"] 
     const collectionSymbol = req.body["collectionSymbol"]
-    const walletAddress = req.body["walletAddress"]    
+    const collection_description = req.body["collectionDescription"]
+    const wallet_address = req.body["walletAddress"]    
+    var creator_name = null
+    const user = await User.findOne({wallet_address})
+
+    if(!user){
+        await createUser({wallet_address})
+    }
+
+    if(user && user.name){
+        creator_name = user.name
+    }
+    else{
+        creator_name = wallet_address
+    }
+
+
     
     
     var responseObject = {}
@@ -114,10 +128,12 @@ router.post("/deploy-contract",expressFormData.parse(), async (req,res) => {
             contract_address :contractAddress,
             collection_symbol:collectionSymbol,
             collection_name:collectionName,
-            description:"",                        
+            collection_description,
+            creator_name:creator_name,
+            description: collection_description,                        
         }
         await createCollection(collectionData)
-        await addCollection(contractAddress,walletAddress)                 
+        await addCollection(contractAddress,wallet_address)                 
         responseObject["success"] = true
         responseObject["data"] = contractAddress
     }

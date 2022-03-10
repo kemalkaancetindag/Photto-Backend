@@ -11,7 +11,8 @@ router.get("/collections", async (req,res) => {
     
 
     if(user){        
-        const collections = await Collection.find({'_id': { $in: user.collections}}).select({"contract_address":1, "collection_name":1,"_id":0})
+        const collections = await Collection.find({'contract_address': { $in: user.collections}}).select({"contract_address":1, "collection_name":1,"_id":0})
+        console.log(collections)
         responseObject["collections"] = collections
         responseObject["success"] = true
         

@@ -18,7 +18,8 @@ const UserSchema = new Schema(
       type:String
     },
     collections:[],
-    items:[]    
+    items:[],
+    favorites:[]    
   },
   
 );

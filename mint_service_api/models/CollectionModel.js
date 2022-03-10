@@ -9,11 +9,7 @@ const CollectionSchema = new Schema(
     contract_address:{
         type:String,
         required:true
-    },
-    description:{
-        type:String,
-        trim:true
-    },
+    },   
     collection_name:{
         type:String,
         required:true,
@@ -23,8 +19,7 @@ const CollectionSchema = new Schema(
         required:true
     },
     image:{
-        type:String,
-        required:true
+        type:String,        
     },
     owners:{
         type:Number
@@ -38,6 +33,9 @@ const CollectionSchema = new Schema(
     creator_name:{
         type:String,
         required:true
+    },
+    collection_description:{
+        type:String
     }
   },
   
