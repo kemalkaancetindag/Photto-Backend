@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const port = 3002
 const mongoose = require("mongoose");
+const infoRoutes = require("./routes/infoRoutes")
 
 
 
@@ -15,6 +16,8 @@ connection.once("open", () => {
   console.log("MongoDB Database Connection Established Succesfully");
 });
 
+
+app.use("/api/info", infoRoutes)
 
 
 app.listen(port, () => {

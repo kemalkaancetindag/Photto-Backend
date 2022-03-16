@@ -6,7 +6,7 @@ const web3 = new Web3(provider)
 
 const constractJSON = JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/contracts/Collection.json"))
 const abi = constractJSON["abi"]
-const byteCode = constractJSON["bytecode"]["object"]
+const byteCode = constractJSON["byteCode"]["object"]
 
 
 
