@@ -36,13 +36,12 @@ router.get("/get-user", async (req,res) => {
 
 router.get("/collected-items", async (req,res) => {
     const {wallet_address} = req.query
+    
     var responseObject = {}
     try{
         const user = await User.findOne({wallet_address})
         const items = await Item.find({
-            $in:{
-                "owner":user.items
-            }
+            owner:wallet_address
         })    
 
         responseObject["success"] = true
