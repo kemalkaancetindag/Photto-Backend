@@ -85,5 +85,33 @@ router.get("/single-nft", async (req,res) => {
 
 })
 
+router.get("/trade-nft", async (req,res) => {
+    const {new_owner, token_id, contract_address,amount} = req.query
+    var responseObject = {}
+   
+
+    try{
+        await Item.findOneAndUpdate({token_id,contract_address},{owner:new_owner})
+        var collection = await Collection.findOne({contract_address})
+        if(collection.trades){
+            collection.trades.push({amount:parseFloat(amount),date:Date.now()})
+        }
+        else{
+            collection.trades = [{amount:parseFloat(amount),date:Date.now()}]
+        }
+
+        await collection.save()
+
+        responseObject["success"] = true
+        responseObject ["error"] = null
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject ["error"] = e.toString()
+    }
+
+    return res.json(responseObject)
+})
+
 
 module.exports = router

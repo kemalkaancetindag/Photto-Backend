@@ -14,6 +14,9 @@ const UserSchema = new Schema(
     isConfirmed:{
         type:Boolean,        
     },
+    isConfirmPending:{
+      type:Boolean
+    },
     image:{
       type:String
     },

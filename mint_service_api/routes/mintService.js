@@ -90,7 +90,8 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
 
    
 
-    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/abi.json")))    
+    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/contracts/Collection.json"))["abi"])
+    console.log(abi)    
     
 
     
@@ -117,9 +118,7 @@ router.post("/deploy-contract",expressFormData.parse(), async (req,res) => {
         creator_name = wallet_address
     }
 
-
-    
-    
+        
     var responseObject = {}
 
     try{
@@ -132,6 +131,7 @@ router.post("/deploy-contract",expressFormData.parse(), async (req,res) => {
             creator_name:creator_name,
             description: collection_description,                        
         }
+        console.log(collectionData)
         await createCollection(collectionData)
         await addCollection(contractAddress,wallet_address)                 
         responseObject["success"] = true
@@ -141,8 +141,7 @@ router.post("/deploy-contract",expressFormData.parse(), async (req,res) => {
         responseObject["success"] = false
         responseObject["data"] = e.toString()
     }
-
-    console.log(responseObject)
+    
     
     res.json(responseObject)
 })

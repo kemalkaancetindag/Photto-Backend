@@ -1,6 +1,23 @@
 const Collection = require("../models/CollectionModel")
 const { Item } = require("../models/ItemModel")
 const User = require("../models/UserModel")
+const multer = require("multer")
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        
+        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_app_api/assets/user_images")
+    },
+    filename: (req, file, cb) => {        
+          
+        cb(null, file.originalname)
+        
+    }
+})
+
+const upload = multer({storage})
+
+
 
 
 const router = require("express").Router()
@@ -156,6 +173,84 @@ router.get("/favorite", async (req,res) => {
 
     return res.json(responseObject)
 
+})
+
+router.post("/update-user",upload.single("image"), async (req,res) => {
+    const {wallet_address, name} = req.body
+    var image = null
+    if(req.file){
+         image = req.file.path
+    }
+    
+
+    var responseObject = {}
+
+    try{
+        await User.findOneAndUpdate({wallet_address},{name,image})
+        responseObject["success"] = true
+        responseObject["error"] = null
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+
+    }
+
+    return res.json(responseObject)
+})
+
+router.get("/request-user-confirmation", async (req,res) => {
+    const {wallet_address} = req.query
+
+    var responseObject = {}
+
+    try{
+        const user = await User.findOne({wallet_address})
+        if(!user.isConfirmPending && !user.isConfirmed){
+            await User.findOneAndUpdate({wallet_address},{isConfirmPending:true,isConfirmed:false})
+        }        
+        responseObject["success"] = true
+        responseObject["error"] = null
+
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+    }
+
+    return res.json(responseObject)
+})
+
+router.get("/searched-user", async (req,res) => {
+    const {wallet_address} = req.query
+    console.log(wallet_address)
+    var responseObject = {}
+    var dataObject = {}
+    try{
+        const user = await User.findOne({wallet_address})
+        const items = await Item.find({owner:wallet_address})
+        const favorite_items = await Item.find({
+            $in:{id:user.favorites}
+        })
+        
+        dataObject["wallet_address"] = wallet_address
+        dataObject["items"] = items
+        dataObject["favorite_items"] = favorite_items
+        dataObject["user_image"] = user.image
+
+        responseObject["success"] = true
+        responseObject["data"] = dataObject
+        responseObject["error"] = null
+        
+    
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+
+    }
+
+    return res.json(responseObject)
 })
 
 module.exports = router

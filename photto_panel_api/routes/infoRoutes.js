@@ -1,5 +1,4 @@
 const router = require("express").Router()
-const { response } = require("express")
 const multer = require("multer")
 const Announcement = require("../models/AnnouncementModel")
 const FAQ = require("../models/FAQModel")
@@ -62,7 +61,6 @@ router.post("/new-announcement",upload.single("image") , async (req,res) => {
     
     
 })
-
 
 router.post("/update-announcement", upload.single("image"), async (req,res) => {
     const {id} = req.query
@@ -130,6 +128,7 @@ router.get("/get-announcements", async (req,res) => {
 
 router.get("/get-single-announcement", async (req,res) => {
     const {id} = req.query
+    console.log(id)
     var responseObject = {}
     try{
         const announcement = await Announcement.findOne({_id:id})
@@ -151,7 +150,6 @@ router.get("/get-single-announcement", async (req,res) => {
 
 
 //FAQ ROUTES
-
 router.post("/new-faq",faqUpload.single("image") , async (req,res) => {
     const {question, answer} = req.body
     var responseObject = {}
@@ -247,6 +245,7 @@ router.get("/get-faqs", async (req,res) => {
 
 router.get("/get-single-faq", async (req,res) => {
     const {id} = req.query
+    console.log(id)
     var responseObject = {}
     try{
         const faq = await FAQ.findOne({_id:id})
@@ -263,7 +262,6 @@ router.get("/get-single-faq", async (req,res) => {
 
     return res.json(responseObject)
 })
-
 //FAQ ROUTES
 
 

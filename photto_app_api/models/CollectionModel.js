@@ -37,7 +37,8 @@ const CollectionSchema = new Schema(
     },
     creator_name:{
         type:String,        
-    }
+    },
+    trades:[]
   },
   
 );
