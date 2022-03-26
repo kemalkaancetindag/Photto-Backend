@@ -1,10 +1,11 @@
 const router = require("express").Router()
 
 const multer = require("multer")
+const Collection = require("../models/CollectionModel")
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_app_api/assets/collection_images")
+        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_app_api/public/assets/collection_images")
     },
     filename: (req, file, cb) => {        
           
@@ -18,9 +19,19 @@ const upload = multer({storage})
 
 
 router.post("/upload-collection-image",upload.single('collectionImage'),async (req,res) => {
-    console.log(req.file.originalname)
+    const {contractAddress} = req.body
+    
     var responseObject = {}
-    responseObject["success"] = true
+    try{                
+        await Collection.findOneAndUpdate({contract_address:contractAddress},{image:`/public/assets/collection_images/${req.file.originalname}`})
+        responseObject["success"] = true
+        responseObject["error"] = null
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+    }        
+        
     return res.json(responseObject)    
 })
 

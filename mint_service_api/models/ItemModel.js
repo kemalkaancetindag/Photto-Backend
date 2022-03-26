@@ -52,6 +52,10 @@ const ItemSchema = new Schema(
     favorites:[],
     collection_description:{
         type:String,        
+    },
+    onSale:{
+        type:Boolean,
+        required:true
     }
     
   },

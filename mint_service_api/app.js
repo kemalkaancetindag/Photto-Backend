@@ -4,18 +4,13 @@ const port = 3000
 const mintRoute = require("./routes/mintService")
 const collectionRoute = require("./routes/collectionService")
 const mongoose = require("mongoose");
+const mintNFT = require('./helpers/mintNFT')
 
 
 
 
 //app.use(formidable());
 
-app.post('/test',(req,res) => {
-    console.log(req.body["name"])
-    const attributes = JSON.parse(req.body["attributes"])
-    console.log(attributes)
-    res.send("test")
-})
 
 mongoose.connect("mongodb://localhost:27017/PhottoDB", { useNewUrlParser: true , useUnifiedTopology: true });
 

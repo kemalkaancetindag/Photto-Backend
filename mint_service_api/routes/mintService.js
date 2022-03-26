@@ -9,6 +9,7 @@ const {addToCollection,createCollection, getNextTokenId} = require("../db/collec
 const { checkUserExists, createUser, addCollection } = require("../db/userOperations");
 const Collection = require("../models/CollectionModel");
 const User = require("../models/UserModel");
+const mintNFT = require("../helpers/mintNFT");
 
 
 
@@ -30,8 +31,9 @@ const upload = multer({storage})
 
 
 
-router.post("/mint-nft",upload.single('image'), async (req, res) => {
-    // GET COLLECTION DATA CHECK COLLECTION EXISTS    
+router.post("/mint-nft",upload.single('image'), async (req, res) => {    
+    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/contracts/Collection.json"))["abi"])
+    responseObject = {}
 
     //COLLECTION DATA
     const wallet_address = req.body["walletAddress"]
@@ -50,52 +52,41 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
     const price = req.body["price"]
     const file_name = req.file.originalname    
     //NFT DATA
-
-    const existingCollection = await Collection.findOne({contract_address:contract_address})
+    try{
+        const existingCollection = await Collection.findOne({contract_address:contract_address})
     
-    const existingUser = await User.findOne({wallet_address:wallet_address})
-
-
-    //RETURN DATA
-    var returnDataObject = null
-    //RETURN DATA
-    console.log("Existing collection")
-    console.log(existingCollection)
+        const existingUser = await User.findOne({wallet_address:wallet_address})    
+        var returnDataObject = null
+        
+                                
     
+        if(existingUser && existingUser.name){
+            creator_name = existingUser.name
+        }
+        else{
+            creator_name = wallet_address
+        }
     
-
-    if(existingUser && existingUser.name){
-        creator_name = existingUser.name
-    }
-    else{
-        creator_name = wallet_address
-    }
-
-    if(existingUser === null){        
-        await createUser({wallet_address})        
-         returnDataObject  = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})        
-        await addToCollection(contract_address,returnDataObject.item._id)
-    }
-    else{
         collection_name = existingCollection.collection_name
         contract_address = existingCollection.contract_address
         collection_description = existingCollection.collection_description
         returnDataObject = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})
-        await addToCollection(contract_address,returnDataObject.item._id)
+        await addToCollection(contract_address,returnDataObject.item._id)      
         
+        await mintNFT(contract_address,`https://ipfs.io/ipfs/${returnDataObject.ipfsLocation}`,wallet_address)
+        console.log("bitti")
+        responseObject["success"] = true
+        responseObject["error"] = null
+        return res.json(responseObject)
+
     }
-
-    
-
-
-   
-
-    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/contracts/Collection.json"))["abi"])
-    console.log(abi)    
-    
-
-    
-    res.json({success:true, ipfsLocation:`https://ipfs.io/ipfs/${returnDataObject.ipfsLocation}`, abi})
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+        console.log(e)
+        return res.json(responseObject)
+    }
+          
 })
 
 
@@ -107,9 +98,7 @@ router.post("/deploy-contract",expressFormData.parse(), async (req,res) => {
     var creator_name = null
     const user = await User.findOne({wallet_address})
 
-    if(!user){
-        await createUser({wallet_address})
-    }
+    
 
     if(user && user.name){
         creator_name = user.name

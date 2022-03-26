@@ -32,7 +32,8 @@ const createItem = async (nftData) => {
       contract_address,
       collection_name,
       price,
-      collection_description       
+      collection_description,
+      onSale:false       
     });
     
 

@@ -41,6 +41,10 @@ const ItemSchema = new Schema(
     contract_address:{
         type:String,
         required:true
+    },
+    onSale:{
+        required:true,
+        type:Boolean
     }
   },
   

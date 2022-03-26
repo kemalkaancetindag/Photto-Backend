@@ -6,7 +6,7 @@ const multer = require("multer")
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_app_api/assets/user_images")
+        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_app_api/public/assets/user_images")
     },
     filename: (req, file, cb) => {        
           
@@ -21,6 +21,31 @@ const upload = multer({storage})
 
 
 const router = require("express").Router()
+
+router.get("/create-user", async (req,res) => {
+    const {wallet_address,instance_token} = req.query
+    var responseObject = {}
+
+    try{
+        var user = await User.findOne({wallet_address})
+        if(!user){
+            var newUser = new User({
+                wallet_address,
+                instance_token
+            })
+            await newUser.save()
+        }
+        responseObject["success"] = true
+        responseObject["error"] = null
+
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+    }
+
+    res.json(responseObject)
+})
 
 router.get("/get-user", async (req,res) => {
     const {wallet_address} = req.query

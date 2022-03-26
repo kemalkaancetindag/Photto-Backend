@@ -1,5 +1,6 @@
 const { Item } = require("../models/ItemModel")
 const Collection = require("../models/CollectionModel")
+const sendNotification = require("../helpers/firebase_cloud")
 
 const router = require("express").Router()
 
@@ -73,6 +74,7 @@ router.get("/single-nft", async (req,res) => {
         responseObject["data"] = item
         responseObject["collection_description"] = collection.description
         responseObject["creator"] = collection.creator_name        
+        responseObject["collection_image"] = collection.image
     }
     catch(e){
         responseObject["success"] = false
@@ -88,9 +90,20 @@ router.get("/single-nft", async (req,res) => {
 router.get("/trade-nft", async (req,res) => {
     const {new_owner, token_id, contract_address,amount} = req.query
     var responseObject = {}
+    const message = {
+        notification:
+        {
+          title: "NFT'niz Satıldı",
+          body: "NFT'niz satın alındı!",
+          icon: "default"
+        }
+      };
+      
+    
    
 
     try{
+        var item = Item.findOne({token_id,contract_address})
         await Item.findOneAndUpdate({token_id,contract_address},{owner:new_owner})
         var collection = await Collection.findOne({contract_address})
         if(collection.trades){
@@ -101,7 +114,7 @@ router.get("/trade-nft", async (req,res) => {
         }
 
         await collection.save()
-
+        await sendNotification(message,item.owner)
         responseObject["success"] = true
         responseObject ["error"] = null
     }
@@ -111,6 +124,24 @@ router.get("/trade-nft", async (req,res) => {
     }
 
     return res.json(responseObject)
+})
+
+router.get("/sell-nft", async (req,res) => {
+    const {token_id,contract_address,price} = req.query
+    var responseObject = {}
+
+
+    try{
+        await Item.findOneAndUpdate({token_id,contract_address},{onSale:true,price:parseFloat(price)})
+        responseObject["success"] = true
+        responseObject["error"] = null
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+    }
+
+    res.json(responseObject)
 })
 
 

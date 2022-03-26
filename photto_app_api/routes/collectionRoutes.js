@@ -44,7 +44,7 @@ router.get("/top-100", async (req, res) => {
                                 "as": "trades",
                                 "cond": {
                                     "$and": [
-                                        { "$gte" : [ "$$trades.date", periodObject["oneStep"] ] },
+                                        //{ "$gte" : [ "$$trades.date", periodObject["oneStep"] ] },
                                         { "$lte": ["$$trades.date", periodObject["now"]] }
                                     ]
                                 }
@@ -56,7 +56,7 @@ router.get("/top-100", async (req, res) => {
                                 "as": "trades",
                                 "cond": {
                                     "$and": [
-                                        { "$gte" : [ "$$trades.date", periodObject["twoStep"] ] },
+                                        //{ "$gte" : [ "$$trades.date", periodObject["twoStep"] ] },
                                         { "$lte": ["$$trades.date", periodObject["oneStep"]] }
                                     ]
                                 }
@@ -108,6 +108,8 @@ router.get("/top-100", async (req, res) => {
         responseObject["error"] = e.toString()
         responseObject["data"] = null     
     }
+
+    console.log(responseObject)
 
 
    

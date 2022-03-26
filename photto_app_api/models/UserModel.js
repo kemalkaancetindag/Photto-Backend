@@ -20,6 +20,9 @@ const UserSchema = new Schema(
     image:{
       type:String
     },
+    instance_token:{
+      type:String
+    },
     collections:[],
     items:[],
     favorites:[]    

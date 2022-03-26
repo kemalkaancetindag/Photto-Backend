@@ -10,9 +10,7 @@ const createCollection = async (collectionData) => {
         collection_name,
         collection_symbol,            
         creator_name,  
-        traded:0,      
-        image:"image"
-
+        traded:0,              
     })
 
     await newCollection.save()    
