@@ -25,7 +25,7 @@ connection.once("open", () => {
   console.log("MongoDB Database Connection Established Succesfully");
 });
 
-app.use("/public",express.static(`${__dirname}/public`)); 
+app.use("/public",express.static(`${process.cwd()}/public`)); 
 
 
 
