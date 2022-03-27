@@ -19,7 +19,7 @@ const mintNFT = require("../helpers/mintNFT");
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/photto_backend/mint_service_api/assets")
+        cb(null,`${process.cwd()}\\assets`)
     },
     filename: (req, file, cb) => {        
           
@@ -32,7 +32,7 @@ const upload = multer({storage})
 
 
 router.post("/mint-nft",upload.single('image'), async (req, res) => {    
-    const abi = JSON.stringify(JSON.parse(fs.readFileSync("C:/Users/Kaan/Desktop/photto_backend/mint_service_api/contracts/Collection.json"))["abi"])
+    const abi = JSON.stringify(JSON.parse(fs.readFileSync(`${process.cwd()}\\contracts/Collection.json`))["abi"])
     responseObject = {}
 
     //COLLECTION DATA
