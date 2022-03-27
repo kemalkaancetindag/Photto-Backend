@@ -128,6 +128,7 @@ router.get("/trade-nft", async (req,res) => {
 
 router.get("/sell-nft", async (req,res) => {
     const {token_id,contract_address,price} = req.query
+    console.log(price)
     var responseObject = {}
 
 
@@ -142,6 +143,44 @@ router.get("/sell-nft", async (req,res) => {
     }
 
     res.json(responseObject)
+})
+
+router.get("/add-view", async (req,res) => {
+    const {contract_address,token_id, owner} = req.query    
+    var responseObject = {} 
+
+    try{
+        var item = await Item.findOne({contract_address,token_id})
+        if(item.owner != owner){
+            if(item.views){
+                item.views = item.views + 1
+                await item.save()
+                responseObject["success"] = true
+                responseObject["error"] = false
+                
+            }
+            else{
+                item.views = 1
+                await item.save()
+                responseObject["success"] = true
+                responseObject["error"] = false
+                
+            }
+        }
+        else{
+            console.log("burda")
+            responseObject["success"] = true
+            responseObject["error"] = false
+        }
+      
+    }
+    catch(e){
+        responseObject["success"] = false
+        responseObject["error"] = e.toString()
+    }
+
+    return res.json(responseObject)
+
 })
 
 

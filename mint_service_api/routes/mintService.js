@@ -66,12 +66,21 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
         else{
             creator_name = wallet_address
         }
+
+        if(existingCollection){
+            collection_name = existingCollection.collection_name
+            contract_address = existingCollection.contract_address
+            collection_description = existingCollection.collection_description
+            returnDataObject = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})
+            await addToCollection(contract_address,returnDataObject.item._id)      
+
+        }
+        else{
+            returnDataObject = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})
+            await addToCollection(contract_address,returnDataObject.item._id)      
+        }
     
-        collection_name = existingCollection.collection_name
-        contract_address = existingCollection.contract_address
-        collection_description = existingCollection.collection_description
-        returnDataObject = await createItem({attributes,owner,name,description,contract_address,collection_name,file_name, price,collection_description})
-        await addToCollection(contract_address,returnDataObject.item._id)      
+       
         
         await mintNFT(contract_address,`https://ipfs.io/ipfs/${returnDataObject.ipfsLocation}`,wallet_address)
         console.log("bitti")

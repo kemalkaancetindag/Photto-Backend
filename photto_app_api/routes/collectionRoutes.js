@@ -122,8 +122,25 @@ router.get("/single-collection", async (req, res) => {
     var responseObject = {}
     var dataObject = {}
 
-    try {
-        const collection = await Collection.findOne({ contract_address: contract_address })
+    try {        
+        const collection = await Collection.aggregate([
+            { $match : { contract_address : contract_address } },
+            {
+                $addFields: {
+                  floorPrice: {
+                    $min:{
+                        $map: {
+                            input: "$trades",
+                            as: "trade",
+                            in: "$$trade.amount"
+                          }
+                    }
+                  }
+                }
+              }
+        ])
+
+        
         const items = await Item.find({
             '_id': { $in: collection.items }
         })
@@ -131,10 +148,11 @@ router.get("/single-collection", async (req, res) => {
 
 
         dataObject["items"] = items
-        dataObject["collection_data"] = collection
+        dataObject["collection_data"] = collection[0]
         responseObject["error"] = null
         responseObject["success"] = true
         responseObject["data"] = dataObject
+        
 
 
     }
@@ -145,6 +163,8 @@ router.get("/single-collection", async (req, res) => {
         responseObject["success"] = false
         responseObject["data"] = null
     }
+
+    
 
     res.json(responseObject)
 })
