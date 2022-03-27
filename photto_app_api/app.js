@@ -9,7 +9,6 @@ const userRoutes = require("./routes/userRoutes")
 const staticRoutes = require("./routes/staticRoutes")
 const admin = require("firebase-admin")
 var serviceAccount = require("./credentials/admin_sdk.json");
-const sendNotification = require('./helpers/firebase_cloud');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });  
@@ -26,7 +25,7 @@ connection.once("open", () => {
   console.log("MongoDB Database Connection Established Succesfully");
 });
 
-app.use("/public",express.static('C:/Users/Kaan/Desktop/photto_backend/photto_app_api/public')); 
+app.use("/public",express.static(`${__dirname}\\public`)); 
 
 
 
@@ -38,8 +37,9 @@ app.use("/api/statics", staticRoutes)
 
 
 app.get("/test",async (req,res) => {  
-  const {wallet_address} = req.query
-  await sendNotification("",wallet_address)    
+  console.log(process.cwd())
+  
+  
   res.json({ok:"ok"})
 
 })

@@ -5,7 +5,7 @@ const Collection = require("../models/CollectionModel")
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_app_api/public/assets/collection_images")
+        cb(null,`${process.cwd()}\\public\\assets\\collection_images`)
     },
     filename: (req, file, cb) => {        
           
