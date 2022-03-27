@@ -32,7 +32,7 @@ const upload = multer({storage})
 
 
 router.post("/mint-nft",upload.single('image'), async (req, res) => {    
-    const abi = JSON.stringify(JSON.parse(fs.readFileSync(`${process.cwd()}\\contracts/Collection.json`))["abi"])
+    const abi = JSON.stringify(JSON.parse(fs.readFileSync(`${process.cwd()}/contracts/Collection.json`))["abi"])
     responseObject = {}
 
     //COLLECTION DATA
