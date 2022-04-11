@@ -4,12 +4,18 @@ const Schema = mongoose.Schema;
 
 const FAQSchema = new Schema(
   {
-    question:{
+    question_tr:{
         type:String
     },
-    answer:{
+    question_eng:{
+      type:String
+  },
+    answer_tr:{
         type:String,        
     },
+    answer_eng:{
+      type:String,        
+  },
     image:{
       type:String
     },  

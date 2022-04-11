@@ -31,9 +31,10 @@ router.get("/top-100", async (req, res) => {
     const { period } = req.query
     var responseObject = {}
     var periodObject = calculatePeriods(period)
-    console.log(periodObject["now"])
 
-    try{
+    console.log(periodObject)
+
+    try {
         const collections = await Collection.aggregate(
             [
                 {
@@ -41,11 +42,11 @@ router.get("/top-100", async (req, res) => {
                         "volume": {
                             "$filter": {
                                 "input": "$trades",
-                                "as": "trades",
+                                "as": "trade",
                                 "cond": {
                                     "$and": [
-                                        //{ "$gte" : [ "$$trades.date", periodObject["oneStep"] ] },
-                                        { "$lte": ["$$trades.date", periodObject["now"]] }
+                                        { "$gt": ["$$trade.date", periodObject["oneStep"]] },
+                                        { "$lt": ["$$trade.date", periodObject["now"]] }
                                     ]
                                 }
                             }
@@ -53,22 +54,22 @@ router.get("/top-100", async (req, res) => {
                         "one_step_back_volume": {
                             "$filter": {
                                 "input": "$trades",
-                                "as": "trades",
+                                "as": "trade",
                                 "cond": {
                                     "$and": [
-                                        //{ "$gte" : [ "$$trades.date", periodObject["twoStep"] ] },
-                                        { "$lte": ["$$trades.date", periodObject["oneStep"]] }
+                                        { "$gt": ["$$trade.date", periodObject["twoStep"]] },
+                                        { "$lt": ["$$trade.date", periodObject["oneStep"]] }
                                     ]
                                 }
                             }
                         },
-                        "document":"$$ROOT"
-    
+                        "document": "$$ROOT"
+
                     }
                 },
                 {
 
-                    "$addFields": {                    
+                    "$addFields": {
                         "calculated_volume": {
                             "$reduce": {
                                 input: "$volume",
@@ -87,63 +88,89 @@ router.get("/top-100", async (req, res) => {
                                 }
                             },
                         },
-    
+
+
                     }
                 },
                 {
-                    "$sort":{
-                        "volume":-1
+                    "$addFields": {
+                        "ratio": {
+                            "$switch": {
+                                "branches": [
+                                    { "case": { "$eq": ["$calculated_volume", 0] }, "then": 0 },
+                                    { "case": { "$eq": ["$calculated_one_step_back_volume", 0] }, "then": "$calculated_volume" },
+                                    {
+                                        "case": {
+                                            "$and": [
+                                                { "$eq": ["$calculated_one_step_back_volume", null] },
+                                                { "$eq": ["$calculated_volume", null] }
+                                            ]
+                                        }, "then": 0
+                                    },                                 
+                                ],
+                                "default": 10
+                            }
+                        }
+                    }
+                },
+                {
+                    "$sort": {
+                        "ratio": -1
                     }
                 }
-    
+
             ]
         )
         responseObject["success"] = true
         responseObject["error"] = null
-        responseObject["data"] = collections                
+        responseObject["data"] = collections
 
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = true
         responseObject["error"] = e.toString()
-        responseObject["data"] = null     
+        responseObject["data"] = null
     }
 
     console.log(responseObject)
 
 
-   
+
     return res.json(responseObject)
 })
 
 router.get("/single-collection", async (req, res) => {
     const { contract_address } = req.query
+    console.log(contract_address)
 
     var responseObject = {}
     var dataObject = {}
 
-    try {        
+    try {
         const collection = await Collection.aggregate([
-            { $match : { contract_address : contract_address } },
+            { $match: { contract_address: contract_address } },
             {
                 $addFields: {
-                  floorPrice: {
-                    $min:{
-                        $map: {
-                            input: "$trades",
-                            as: "trade",
-                            in: "$$trade.amount"
-                          }
+                    floorPrice: {
+                        $min: {
+                            $map: {
+                                input: "$trades",
+                                as: "trade",
+                                in: "$$trade.amount"
+                            }
+                        }
                     }
-                  }
                 }
-              }
+            }
         ])
 
-        
+
+
         const items = await Item.find({
-            '_id': { $in: collection.items }
+            '_id': { $in: collection[0].items }
         })
+
+        console.log(items)
 
 
 
@@ -152,7 +179,7 @@ router.get("/single-collection", async (req, res) => {
         responseObject["error"] = null
         responseObject["success"] = true
         responseObject["data"] = dataObject
-        
+
 
 
     }
@@ -164,7 +191,7 @@ router.get("/single-collection", async (req, res) => {
         responseObject["data"] = null
     }
 
-    
+
 
     res.json(responseObject)
 })

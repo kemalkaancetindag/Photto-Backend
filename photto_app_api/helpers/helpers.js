@@ -1,7 +1,7 @@
 
 
 const calculatePeriods = (period) => {
-    var now = Date.now()
+    var now = Math.floor(Date.now() / 1000)
     const oneDay = 86400
     const oneWeek = 604800 
     const oneMonth = 2629743
@@ -12,6 +12,10 @@ const calculatePeriods = (period) => {
         case "1d":
             periodObject["oneStep"] = now - oneDay
             periodObject["twoStep"] = now - (oneDay*2)
+            break
+        case "3d":
+            periodObject["oneStep"] = now - (oneDay*3)
+            periodObject["twoStep"] = now - (oneDay*6)
             break
         case "1w":
             periodObject["oneStep"] = now - oneWeek

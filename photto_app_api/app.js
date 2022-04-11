@@ -7,6 +7,7 @@ const itemRoutes = require("./routes/itemRoutes")
 const searchRoute = require("./routes/searchRoute")
 const userRoutes = require("./routes/userRoutes")
 const staticRoutes = require("./routes/staticRoutes")
+const statsRoutes = require("./routes/statsRoutes")
 const admin = require("firebase-admin")
 var serviceAccount = require("./credentials/admin_sdk.json");
 admin.initializeApp({
@@ -34,6 +35,7 @@ app.use("/api/items",itemRoutes)
 app.use("/api/explore",searchRoute)
 app.use("/api/users", userRoutes)
 app.use("/api/statics", staticRoutes)
+app.use("/api/stats",statsRoutes)
 
 
 app.get("/test",async (req,res) => {  

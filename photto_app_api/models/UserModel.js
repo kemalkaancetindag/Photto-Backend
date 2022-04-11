@@ -20,6 +20,12 @@ const UserSchema = new Schema(
     image:{
       type:String
     },
+    banner_image:{
+      type:String
+    },
+    email:{
+      type:String
+    },
     instance_token:{
       type:String
     },

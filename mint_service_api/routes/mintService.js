@@ -19,7 +19,7 @@ const mintNFT = require("../helpers/mintNFT");
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,`${process.cwd()}\\assets`)
+        cb(null,`${process.cwd()}/assets`)
     },
     filename: (req, file, cb) => {        
           
@@ -43,6 +43,8 @@ router.post("/mint-nft",upload.single('image'), async (req, res) => {
     const collection_symbol = req.body["collectionSymbol"]
     var creator_name = null
     //COLLECTION DATA
+
+    console.log(req.body)
 
     //NFT DATA
     const attributes = JSON.parse(JSON.stringify(req.body["attributes"]["traits"]))

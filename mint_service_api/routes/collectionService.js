@@ -6,6 +6,7 @@ const router = require("express").Router();
 
 router.get("/collections", async (req,res) => {
     const {wallet_address} = req.query    
+    console.log(wallet_address)
     const user = await User.findOne({wallet_address:wallet_address})
     var responseObject = {}
     

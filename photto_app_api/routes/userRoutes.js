@@ -5,33 +5,36 @@ const multer = require("multer")
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        
-        cb(null,`${process.cwd()}/public/assets/user_images`)
+
+        cb(null, `${process.cwd()}/public/assets/user_images`)
     },
-    filename: (req, file, cb) => {        
-          
+    filename: (req, file, cb) => {
+
         cb(null, file.originalname)
-        
+
     }
 })
 
-const upload = multer({storage})
+const upload = multer({ storage })
 
 
 
 
 const router = require("express").Router()
 
-router.get("/create-user", async (req,res) => {
-    const {wallet_address,instance_token} = req.query
+router.get("/create-user", async (req, res) => {
+    const { wallet_address, instance_token } = req.query
     var responseObject = {}
 
-    try{
-        var user = await User.findOne({wallet_address})
-        if(!user){
+    try {
+        var user = await User.findOne({ wallet_address })
+        if (!user) {
             var newUser = new User({
                 wallet_address,
-                instance_token
+                instance_token,
+                banner_image:"/public/assets/constants/constant_image.jpg",
+                image:"/public/assets/constants/constant_profile_image.jpg",
+
             })
             await newUser.save()
         }
@@ -39,7 +42,7 @@ router.get("/create-user", async (req,res) => {
         responseObject["error"] = null
 
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
     }
@@ -47,52 +50,52 @@ router.get("/create-user", async (req,res) => {
     res.json(responseObject)
 })
 
-router.get("/get-user", async (req,res) => {
-    const {wallet_address} = req.query
+router.get("/get-user", async (req, res) => {
+    const { wallet_address } = req.query
 
     var responseObject = {}
     var dataObject = {}
 
-    try{
-        const user = await User.findOne({wallet_address})
+    try {
+        const user = await User.findOne({ wallet_address })
         const items = await Item.find({
-            '_id': { $in: user.items}
+            '_id': { $in: user.items }
         })
         responseObject["success"] = true
         responseObject["error"] = null
-        dataObject["user"] = user    
-        dataObject["items"] = items        
+        dataObject["user"] = user
+        dataObject["items"] = items
         responseObject["data"] = dataObject
-      
-        
-        
+
+
+
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
-        responseObject["error"] = e.toString()                
+        responseObject["error"] = e.toString()
         responseObject["data"] = null
     }
 
-    res.json(responseObject)    
+    res.json(responseObject)
 })
 
-router.get("/collected-items", async (req,res) => {
-    const {wallet_address} = req.query
-    
+router.get("/collected-items", async (req, res) => {
+    const { wallet_address } = req.query
+
     var responseObject = {}
-    try{
-        const user = await User.findOne({wallet_address})
+    try {
+        const user = await User.findOne({ wallet_address })
         const items = await Item.find({
-            owner:wallet_address
-        })    
+            owner: wallet_address
+        })
 
         responseObject["success"] = true
         responseObject["error"] = null
         responseObject["data"] = items
-        
-        
+
+
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
         responseObject["data"] = null
@@ -100,27 +103,27 @@ router.get("/collected-items", async (req,res) => {
 
 
     res.json(responseObject)
-    
+
 
 })
 
-router.get("/search-collected-items", async (req,res) => {
-    const {term, wallet_address} = req.query
+router.get("/search-collected-items", async (req, res) => {
+    const { term, wallet_address } = req.query
     var responseObject = {}
 
-    try{
+    try {
         const items = await Item.find({
-            $and:[
-                {name:{$regex: `${term}`, $options:'i'}},
-                {owner:wallet_address}
-            ]            
+            $and: [
+                { name: { $regex: `${term}`, $options: 'i' } },
+                { owner: wallet_address }
+            ]
         })
 
         responseObject["success"] = true
         responseObject["error"] = null
         responseObject["data"] = items
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
         responseObject["data"] = null
@@ -130,16 +133,16 @@ router.get("/search-collected-items", async (req,res) => {
     res.json(responseObject)
 })
 
-router.get("/favorites", async (req,res) => {
+router.get("/favorites", async (req, res) => {
 
-    const {wallet_address} = req.query
+    const { wallet_address } = req.query
     var responseObject = {}
-    try{
-        const user = await User.findOne({wallet_address})
+    try {
+        const user = await User.findOne({ wallet_address })
         console.log(user.favorites)
         const favoriteItems = await Item.find({
-            "_id":{
-                $in:user.favorites
+            "_id": {
+                $in: user.favorites
             }
         })
 
@@ -148,7 +151,7 @@ router.get("/favorites", async (req,res) => {
         responseObject["error"] = null
         responseObject["data"] = favoriteItems
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
         responseObject["data"] = null
@@ -158,29 +161,29 @@ router.get("/favorites", async (req,res) => {
 
 })
 
-router.get("/favorite", async (req,res) => {
-    const {wallet_address, token_id, contract_address} = req.query    
+router.get("/favorite", async (req, res) => {
+    const { wallet_address, token_id, contract_address } = req.query
 
     var responseObject = {}
 
-    try{
-        const user = await User.findOne({wallet_address})
+    try {
+        const user = await User.findOne({ wallet_address })
         console.log(user.favorites)
         const item = await Item.findOne({
-                    $and:[
-                        {token_id},
-                        {contract_address}
-                    ]
-                })
+            $and: [
+                { token_id },
+                { contract_address }
+            ]
+        })
         console.log(item.favorites)
-        if(item.favorites.includes(wallet_address)){
+        if (item.favorites.includes(wallet_address)) {
             var new_item_favorites_arr = item.favorites.filter(item => item !== wallet_address)
             var new_user_favorites_arr = user.favorites.filter(item => item !== item._id)
-            
+
             user.favorites = new_user_favorites_arr
             item.favorites = new_item_favorites_arr
         }
-        else{
+        else {
             user.favorites.push(item._id)
             item.favorites.push(wallet_address)
         }
@@ -189,9 +192,9 @@ router.get("/favorite", async (req,res) => {
 
         responseObject["success"] = true
         responseObject["error"] = null
-        
+
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
     }
@@ -200,22 +203,23 @@ router.get("/favorite", async (req,res) => {
 
 })
 
-router.post("/update-user",upload.single("image"), async (req,res) => {
-    const {wallet_address, name} = req.body
-    var image = null
-    if(req.file){
-         image = req.file.path
-    }
-    
+router.post("/update-user", upload.fields([{
+    name: 'banner_image', maxCount: 1
+}, {
+    name: 'image', maxCount: 1
+}]), async (req, res) => {
+    const { wallet_address, name, email } = req.body
+    console.log()
+
 
     var responseObject = {}
 
-    try{
-        await User.findOneAndUpdate({wallet_address},{name,image})
+    try {
+        await User.findOneAndUpdate({ wallet_address }, { name, image:`/public/assets/user_images/${req.files["image"][0].originalname ?? null}`, email,banner_image:`/public/assets/user_images/${req.files["banner_image"][0].originalname ?? null}`,  })
         responseObject["success"] = true
         responseObject["error"] = null
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
 
@@ -224,21 +228,21 @@ router.post("/update-user",upload.single("image"), async (req,res) => {
     return res.json(responseObject)
 })
 
-router.get("/request-user-confirmation", async (req,res) => {
-    const {wallet_address} = req.query
+router.get("/request-user-confirmation", async (req, res) => {
+    const { wallet_address } = req.query
 
     var responseObject = {}
 
-    try{
-        const user = await User.findOne({wallet_address})
-        if(!user.isConfirmPending && !user.isConfirmed){
-            await User.findOneAndUpdate({wallet_address},{isConfirmPending:true,isConfirmed:false})
-        }        
+    try {
+        const user = await User.findOne({ wallet_address })
+        if (!user.isConfirmPending && !user.isConfirmed) {
+            await User.findOneAndUpdate({ wallet_address }, { isConfirmPending: true, isConfirmed: false })
+        }
         responseObject["success"] = true
         responseObject["error"] = null
 
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
     }
@@ -246,18 +250,18 @@ router.get("/request-user-confirmation", async (req,res) => {
     return res.json(responseObject)
 })
 
-router.get("/searched-user", async (req,res) => {
-    const {wallet_address} = req.query
+router.get("/searched-user", async (req, res) => {
+    const { wallet_address } = req.query
     console.log(wallet_address)
     var responseObject = {}
     var dataObject = {}
-    try{
-        const user = await User.findOne({wallet_address})
-        const items = await Item.find({owner:wallet_address})
+    try {
+        const user = await User.findOne({ wallet_address })
+        const items = await Item.find({ owner: wallet_address })
         const favorite_items = await Item.find({
-            $in:{id:user.favorites}
+            $in: { id: user.favorites }
         })
-        
+
         dataObject["wallet_address"] = wallet_address
         dataObject["items"] = items
         dataObject["favorite_items"] = favorite_items
@@ -266,10 +270,10 @@ router.get("/searched-user", async (req,res) => {
         responseObject["success"] = true
         responseObject["data"] = dataObject
         responseObject["error"] = null
-        
-    
+
+
     }
-    catch(e){
+    catch (e) {
         responseObject["success"] = false
         responseObject["error"] = e.toString()
 

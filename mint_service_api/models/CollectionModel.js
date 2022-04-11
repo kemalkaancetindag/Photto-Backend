@@ -21,6 +21,9 @@ const CollectionSchema = new Schema(
     image:{
         type:String,        
     },
+    banner_image:{
+        type:String
+    },
     owners:{
         type:Number
     },

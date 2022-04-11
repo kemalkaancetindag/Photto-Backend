@@ -4,12 +4,18 @@ const Schema = mongoose.Schema;
 
 const AnnouncementSchema = new Schema(
   {
-    header:{
+    title_tr:{
         type:String
     },
-    content:{
+    title_eng:{
+      type:String
+  },
+    content_tr:{
         type:String,        
     },
+    content_eng:{
+      type:String,        
+  },
     image:{
       type:String
     },  
@@ -22,6 +28,7 @@ const AnnouncementSchema = new Schema(
   },
   
 );
+
 
 AnnouncementSchema.pre('save', function(next) {
     var dt = new Date()

@@ -9,7 +9,9 @@ const createCollection = async (collectionData) => {
         collection_description,
         collection_name,
         collection_symbol,            
-        creator_name,  
+        creator_name,
+        image:"/public/assets/constants/constant_image.jpg",
+        banner_image:"/public/assets/constants/constant_profile_image.jpg",
         traded:0,              
     })
 

@@ -24,6 +24,10 @@ connection.once("open", () => {
 app.use('/mint-service', mintRoute)
 app.use('/collection-service', collectionRoute)
 
+app.get("/test",async (req,res) => {
+  res.json({ok:"ok"})
+})
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

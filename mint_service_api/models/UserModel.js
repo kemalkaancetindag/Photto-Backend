@@ -20,7 +20,10 @@ const UserSchema = new Schema(
     favorites:[],
     image:{
       type:String
-    }    
+    },
+    banner_image:{
+      type:String
+    },
   },
   
 );

@@ -5,11 +5,11 @@ const FAQ = require("../models/FAQModel")
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_panel_api/assets/announcement_images")
+        cb(null,`${process.cwd()}/assets/announcement_images`)
     },
     filename: (req, file, cb) => {        
           
-        cb(null, file.originalname)
+        cb(null,  `${Date.now()}_news.${file.mimetype.split("/")[1]}`)
         
     }
 })
@@ -17,31 +17,35 @@ const storage = multer.diskStorage({
 const faqStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         
-        cb(null,"C:/Users/Kaan/Desktop/photto_backend/photto_panel_api/assets/faq_images")
+        cb(null,`${process.cwd()}/assets/faq_images`)
     },
-    filename: (req, file, cb) => {        
+    filename: (req, file, cb) => {    
+        
+            
           
-        cb(null, file.originalname)
+        cb(null, `${Date.now()}_faq.${file.mimetype.split("/")[1]}`)
         
     }
 })
 
 
-const upload = multer({storage})
-const faqUpload = multer({faqStorage})
+const upload = multer({storage:storage})
+const faqUpload = multer({storage:faqStorage})
 
 
 
 //ANONCEMENT ROUTES
 router.post("/new-announcement",upload.single("image") , async (req,res) => {
-    const {header, content} = req.body
+    const {title_tr, content_tr, title_eng, content_eng} = req.body
     var responseObject = {}
 
 
     try{
         const newAnnouncement = Announcement({
-            header,
-            content,
+            title_tr,
+            content_tr,
+            title_eng,
+            content_eng,
             image: req.file.path
         })
 
@@ -150,15 +154,17 @@ router.get("/get-single-announcement", async (req,res) => {
 
 
 //FAQ ROUTES
-router.post("/new-faq",faqUpload.single("image") , async (req,res) => {
-    const {question, answer} = req.body
-    var responseObject = {}
-    console.log(req.file)
+router.post("/new-faq",faqUpload.single("image") , async (req,res) => {    
+    
+    const {question_tr,question_eng, answer_tr, answer_eng} = req.body    
+    var responseObject = {}        
 
     try{
         const newFAQ = FAQ({
-            question,
-            answer,
+            question_tr,
+            question_eng,
+            answer_tr,
+            answer_eng,
             image: req.file.path ?? null
         })
 
@@ -181,16 +187,22 @@ router.post("/new-faq",faqUpload.single("image") , async (req,res) => {
 
 router.post("/update-faq", faqUpload.single("image"), async (req,res) => {
     const {id} = req.query
-    const {question,answer} = req.body
+    console.log("id")
+    console.log(id)
+    const {question_tr,question_eng,answer_tr,answer_eng} = req.body
+    console.log(req.body)
     var responseObject = {} 
     var newImage = null
     try{              
         if(req.file){            
-            newImage = req.file.path
+            await FAQ.findOneAndUpdate({_id:id},{question_tr,answer_tr,image:req.file.path,question_eng,answer_eng})            
         }   
-        console.log(newImage)
+        else{
+            await FAQ.findOneAndUpdate({_id:id},{question_tr,answer_tr,question_eng,answer_eng})            
+        }
+        
 
-        await FAQ.findOneAndUpdate({_id:id},{question,answer,image:newImage})
+        
         
 
         responseObject["success"] = true

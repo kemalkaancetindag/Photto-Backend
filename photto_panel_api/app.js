@@ -3,6 +3,12 @@ const app = express()
 const port = 3002
 const mongoose = require("mongoose");
 const infoRoutes = require("./routes/infoRoutes")
+const userRoutes = require("./routes/userRoutes")
+const authRoutes = require("./routes/authRoutes")
+const bodyParser = require("body-parser")
+const cors = require("cors")
+
+
 
 
 
@@ -17,7 +23,12 @@ connection.once("open", () => {
 });
 
 
+app.use(cors())
+
 app.use("/api/info", infoRoutes)
+app.use(bodyParser.json())
+app.use("/api/users",userRoutes)
+app.use("/api/auth",authRoutes)
 
 
 app.listen(port, () => {
